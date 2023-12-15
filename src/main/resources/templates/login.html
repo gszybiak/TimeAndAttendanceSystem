@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Login Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+<section class="vh-100">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-6 text-black">
+
+        <div class="px-5 ms-xl-4">
+          <i class="fas fa-crow fa-2x me-3 pt-5 mt-xl-4" style="color: #709085;"></i>
+          <img style="height:200px; margin-left: 80px" src="/images/stock_logo.jpg" alt="Logo" class="img-fluid">
+          <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; margin-left: 170px;">Stock</h3>
+        </div>
+
+        <div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
+
+          <form style="width: 23rem;" role="form" action="/login" th:action="@{/login}" method="post">
+
+            <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Log in</h3>
+
+            <div class="form-outline mb-4">
+              <input type="email" id="emailOrLogin" class="form-control form-control-lg" autofocus required name="username" placeholder="Enter your email or login"/>
+            </div>
+
+            <div class="form-outline mb-4">
+              <input type="password" id="password" class="form-control form-control-lg" value="" required name="password" placeholder="Enter your password"/>
+            </div>
+
+            <div class="pt-1 mb-4">
+              <button class="btn btn-info btn-lg btn-block" type="submit">Login</button>
+            </div>
+
+            <p class="small mb-2 pb-lg-2">
+              <a class="text-muted" href="#passwordResetModal" data-bs-toggle="modal" data-bs-target="#passwordResetModal">Forgot password?</a>
+            </p>
+
+            <p>Don't have an account? <a href="#registerModal" class="link-info" data-bs-toggle="modal" data-bs-target="#registerModal">Register here</a></p>
+
+            <div th:if="${info != null}">
+              <div class="alert alert-success" role="alert">
+                <h5 th:text="${info}"></h5>
+              </div>
+            </div>
+
+            <div th:if="${error != null}">
+              <div class="alert alert-danger" role="alert">
+                <h5 th:text="${error}"></h5>
+              </div>
+            </div>
+          </form>
+
+        </div>
+
+      </div>
+      <div class="col-sm-6 px-0 d-none d-sm-block">
+        <img th:src="@{/images/dollars.jpg}" alt="Login image" class="w-100 vh-100" style="object-fit: cover; object-position: left;">
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Forgot Password Modal Window -->
+<div class="modal fade" id="passwordResetModal" tabindex="-1" aria-labelledby="passwordResetModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="passwordResetModalLabel">Password Reset</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p class="py-2">
+          Enter your email address then we'll email you with instructions to reset your password.
+        </p>
+        <div class="form-outline">
+          <input type="email" id="forgetEmail" class="form-control my-3" placeholder="Enter your email" />
+        </div>
+        <a href="#" class="btn btn-primary w-100">Reset password</a>
+        <div class="d-flex justify-content-between mt-4">
+          <a id="loginLinkPasswordReset" class="btn w-50" href="/login" data-bs-dismiss="modal">Login</a>
+          <a id="registerLink" class="btn w-50" href="/login" data-bs-toggle="modal" data-bs-target="#registerModal">Register</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Register Modal Window -->
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="registerModalLabel">Create an account</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="form-outline">
+          <input type="text" id="newUserName" class="form-control my-3" placeholder="Enter your username" />
+        </div>
+        <div class="form-outline">
+          <input type="text" id="newName" class="form-control my-3" placeholder="Enter your name" />
+        </div>
+        <div class="form-outline">
+          <input type="text" id="newSurname" class="form-control my-3" placeholder="Enter your surname" />
+        </div>
+        <div class="form-outline">
+          <input type="email" id="newEmail" class="form-control my-3" placeholder="Enter your email" />
+        </div>
+        <div class="form-outline">
+          <input type="password" id="newPassword" class="form-control my-3" placeholder="Enter your password" />
+        </div>
+        <div class="form-outline">
+          <input type="password" id="confirmNewPassword" class="form-control my-3" placeholder="Repeat your password" />
+        </div>
+        <a class="btn btn-primary w-100" id="registerButton" >Register</a>
+        <p class="text-center text-muted mt-4 mb-0">Have already an account? <a id="loginLinkRegister" href="#" class="fw-bold text-body" data-bs-dismiss="modal" ><u>Login here</u></a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    function handleLoginLinkClick(event, path) {
+      event.preventDefault();
+      window.location.href = path;
+      window.history.replaceState({}, document.title, path);
+    }
+
+    var loginLinkPasswordReset = document.getElementById('loginLinkPasswordReset');
+    loginLinkPasswordReset.addEventListener('click', function (event) {
+      handleLoginLinkClick(event, '/login');
+    });
+
+    var loginLinkRegister = document.getElementById('loginLinkRegister');
+    loginLinkRegister.addEventListener('click', function (event) {
+      handleLoginLinkClick(event, '/login');
+    });
+
+    var registerLink = document.getElementById('registerLink');
+    loginLinkRegister.addEventListener('click', function (event) {
+      handleLoginLinkClick(event, '/login');
+    });
+  });
+
+  const informationContainer = document.getElementById('information');
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById("registerButton").addEventListener("click", function () {
+      var newUserName = document.getElementById('newUserName').value;
+      var newName = document.getElementById('newName').value;
+      var newSurname = document.getElementById('newSurname').value;
+      var newEmail = document.getElementById('newEmail').value;
+      var newPassword = document.getElementById('newPassword').value;
+      var confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+      if (!newUserName || !newName || !newSurname || !newEmail || !newPassword) {
+        window.location.href = '/login?error=You didn\'t enter all data.';
+        return;
+      }
+
+      if (newPassword !== confirmNewPassword)
+      {
+        window.location.href = '/login?error=Password and confirmation password didn\'t match.';
+        return;
+      }
+
+      const newUserData = {
+        username: newUserName,
+        name: newName,
+        surname: newSurname,
+        email: newEmail,
+        password: newPassword,
+      };
+
+      fetch(`http://localhost:8080/addNewUser`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newUserData),
+      })
+              .then(response => {
+                if (response.ok) {
+                  window.location.href = '/login?info=User was added.';
+                } else {
+                  window.location.href = '/login?error=Error occurred while adding user.';
+                }
+              })
+              .catch(error => {
+                console.error("Error while invoking API POST:", error);
+                window.location.href = '/login?error=Error occurred while calling the API to add user.';
+              });
+    });
+  });
+
+</script>
+</body>
+</html>
