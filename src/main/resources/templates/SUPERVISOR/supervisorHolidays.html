@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Holidays Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .background-image {
+            background-image: url('/images/office.jpg');
+            background-size: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="background-image">
+<nav class="navbar navbar-expand-md fixed-top text-dark bg-white" style="height: 70px;">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <a class="navbar-brand" href="supervisorMain">TimeTeam Manager SUPERVISOR</a>
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="d-flex justify-content-center" style="background-color: #6c757d; border-radius: 5px; width: 150px; height: 38px; margin-right: 10px;">
+                <p class="display-6" id="clock" style="margin-top: -7px; color: white;"></p>
+            </div>
+            <a href="supervisorMessages">
+                <button id="btnMessages" title="messages" class="btn btn-secondary" style="margin-right: 10px;" ><i class="fa-solid fa-envelope"></i></button>
+            </a>
+            <a href="supervisorSettings">
+                <button id="btnSettings" title="settings" class="btn btn-secondary" style="margin-right: 10px;" ><i class="fas fa-cog"></i></button>
+            </a>
+            <a href="logout">
+                <button class="btn btn-secondary" title="logout" ><i class="fa-solid fa-door-open"></i></button>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div style="width: 100%; margin-top: 70px;">
+    <div class="row">
+        <div class="col-md-2">
+        </div>
+
+        <div class="col-md-8">
+            <div class="jumbotron main-hello" style="background-color: rgba(200,200,200,0.9); margin-top: 20px">
+                <div>
+                    <div class="d-flex justify-content-center">
+                        <div th:if="${info != null}" style="margin-top: 10px;">
+                            <div class="alert alert-success">
+                                <h4 th:text="${info}"/>
+                            </div>
+                        </div>
+                        <div th:if="${error != null}" style="margin-top: 10px;">
+                            <div class="alert alert-danger">
+                                <h4 th:text="${error}"/>
+                            </div>
+                        </div>
+                    </div>
+                    <h1 class="text-center" style="margin: 10px;">Holidays</h1>
+                    <div class="row">
+                        <div class="col-md-2">
+                        </div>
+                        <div id="holidayTable" class="col-md-8" style="margin-top: 20px;">
+                            <div class="table-responsive" style="max-height: 350px;">
+                                <table class="table table-striped table-bordered table-hover">
+                                    <thead style="background-color: #888;">
+                                    <tr>
+                                        <th scope="col" class="text-center" width="25%">Type holiday</th>
+                                        <th scope="col" class="text-center" width="25%">Start</th>
+                                        <th scope="col" class="text-center" width="25%">End</th>
+                                        <th scope="col" class="text-center" width="25%">Duration (days)</th>
+                                        <th scope="col" class="text-center" width="25%">Approval</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="holiday : ${listHolidays}">
+                                        <td th:text="${holiday.id}" hidden></td>
+                                        <td th:text="${holiday.nameReadoutType}" width="25%"></td>
+                                        <td th:text="${holiday.startTime}" width="25%"></td>
+                                        <td th:text="${holiday.endTime}" width="25%"></td>
+                                        <td th:text="${holiday.duration}" width="25%"></td>
+                                        <td width="25%" style="text-align: center;">
+                                            <span th:if="${holiday.isApproval}"><i class="fas fa-check"></i></span>
+                                            <span th:unless="${holiday.isApproval}"><i class="fas fa-times"></i></span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-center" style="margin-top: 10px; margin-bottom: 10px;">
+                                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addHolidayModal" style="height: 60px;">Add holiday</button>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+        </div>
+    </div>
+</div>
+<footer class="bg-body-tertiary text-center text-lg-start">
+    <div class="text-center p-3 text-dark bg-white" style="position: fixed; bottom: 0; width: 100%; height: 70px;">
+        2023 Gabriel Szybiak
+    </div>
+</footer>
+
+<!-- Add Holiday Modal Window -->
+<div class="modal fade" id="addHolidayModal" tabindex="-1" aria-labelledby="addHolidayModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addHolidayModalLabel">Add holiday request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <form id="addHolidayForm" action="/supervisorAddHoliday" th:action="@{/supervisorAddHoliday}" method="post" th:object="${holidayForm}">
+                    <input type="hidden" th:field="*{holidayTypeId}" />
+                    <div class="dropdown d-flex justify-content-center" style="margin-bottom: 20px">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="holidayTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Select holiday type
+                        </button>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="holidayTypeDropdown">
+                            <li th:id="holidayTypeId" th:each="holidayType : ${listHolidayTypes}">
+                                <a class="dropdown-item" href="#"
+                                   th:data-holidayType-id="${holidayType.id}"
+                                   th:data-holidayType-name="${holidayType.name}"
+                                   onclick="updateHolidayTypeText(event, this)">
+                                    <span th:text="${holidayType.name}"></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div style="text-align: left;">
+                        <div class="mb-3 form-check" >
+                            <input th:field="*{usePeriod}" type="checkbox" class="form-check-input" id="periodCheck" name="periodCheck">
+                            <label class="form-check-label" for="periodCheck">Use Period</label>
+                        </div>
+
+                        <div class="mb-3" id="singleDateContainer">
+                            <label for="singleDate" class="form-label">Single date</label>
+                            <input th:field="*{singleDate}" type="date" class="form-control" id="singleDate" name="singleDate">
+                        </div>
+
+                        <div class="mb-3" id="startDateContainer" style="display: none;">
+                            <label for="startDate" class="form-label">Start Date Period</label>
+                            <input th:field="*{startDate}" type="date" class="form-control" id="startDate" name="startDate">
+                        </div>
+
+                        <div class="mb-3" id="endDateContainer" style="display: none;">
+                            <label for="endDate" class="form-label">End Date Period</label>
+                            <input th:field="*{endDate}" type="date" class="form-control" id="endDate" name="endDate">
+                        </div>
+                    </div>
+                    <div style="width: 100%; margin-top: 10px; margin-bottom: 10px;"  class="d-flex justify-content-center">
+                        <button type="button" onclick="redirectToHoliday()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+                        <button type="submit" class="btn btn-secondary" >Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var periodCheck = document.getElementById('periodCheck');
+        var singleDateContainer = document.getElementById('singleDateContainer');
+        var startDateContainer = document.getElementById('startDateContainer');
+        var endDateContainer = document.getElementById('endDateContainer');
+
+        singleDateContainer.style.display = periodCheck.checked ? 'none' : 'block';
+        startDateContainer.style.display = periodCheck.checked ? 'block' : 'none';
+        endDateContainer.style.display = periodCheck.checked ? 'block' : 'none';
+
+        periodCheck.addEventListener('change', function () {
+            singleDateContainer.style.display = periodCheck.checked ? 'none' : 'block';
+            startDateContainer.style.display = periodCheck.checked ? 'block' : 'none';
+            endDateContainer.style.display = periodCheck.checked ? 'block' : 'none';
+        });
+    });
+    function updateHolidayTypeText(event, selectedItem) {
+        event.preventDefault();
+
+        var holidayTypeText = selectedItem.innerText.trim();
+        document.getElementById('holidayTypeDropdown').innerText = holidayTypeText;
+
+        var holidayTypeIdInput = document.getElementById("holidayTypeId");
+        var holidayTypeId = selectedItem.getAttribute("data-holidayType-id");
+
+        holidayTypeIdInput.value = holidayTypeId;
+
+        var holidayTypeDropdown = document.getElementById("holidayTypeDropdown");
+        holidayTypeDropdown.setAttribute("data-holidayType-id", holidayTypeId);
+    }
+    function updateClock() {
+        var now = new Date();
+
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+        var seconds = now.getSeconds();
+
+        hours = (hours < 10) ? "0" + hours : hours;
+        minutes = (minutes < 10) ? "0" + minutes : minutes;
+        seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+        document.getElementById("clock").innerHTML = hours + ":" + minutes + ":" + seconds;
+
+        setTimeout(updateClock, 1000);
+    }
+
+    window.onload = updateClock;
+
+    function redirectToMain() {
+        window.location.href = '/main';
+    }
+
+    function redirectToHoliday() {
+        window.location.href = '/holidays';
+    }
+</script>
+</html>

@@ -6,7 +6,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.util.StringUtils;
-import szybiakg.loginPage.employee.Employee;
 import szybiakg.loginPage.employee.EmployeeDto;
 import szybiakg.loginPage.employee.EmployeeService;
 import szybiakg.loginPage.messages.MessageDto;
@@ -17,27 +16,26 @@ import szybiakg.loginPage.user.UserDto;
 import szybiakg.loginPage.user.UserService;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
-public class MainController {
+public class SupervisorMainController {
 
     private final UserService userService;
     private final EmployeeService employeeService;
     private final ReadoutService readoutService;
     private final MessageService messageService;
 
-    public MainController(UserService userService, ReadoutService readoutService, EmployeeService employeeService, MessageService messageService) {
+    public SupervisorMainController(UserService userService, ReadoutService readoutService, EmployeeService employeeService, MessageService messageService) {
         this.userService = userService;
         this.readoutService = readoutService;
         this.employeeService = employeeService;
         this.messageService = messageService;
     }
 
-    @RequestMapping("/main")
-    String showMain(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error) {
+    @RequestMapping("/supervisorMain")
+    String showSupervisorMain(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error) {
         if (!StringUtils.isEmpty(info))
             model.addAttribute("info", info);
         if (!StringUtils.isEmpty(error))
@@ -54,11 +52,11 @@ public class MainController {
         model.addAttribute("workedHours", readoutService.getSumTime(presenceList));
         model.addAttribute("breakHours", readoutService.getSumTime(breakList));
         model.addAttribute("quanityLates", readoutService.getQuantityLates(presenceList));
-        return "main";
+        return "supervisor/supervisorMain";
     }
 
-    @PostMapping("/logPresence")
-    public String logPresence(@RequestParam String nfcCode, RedirectAttributes redirectAttributes) {
+    @PostMapping("/supervisorLogPresence")
+    public String supervisorLogPresence(@RequestParam String nfcCode, RedirectAttributes redirectAttributes) {
         boolean isPresence = false;
         Optional<UserDto> user = userService.findAuthenticatedUser();
         if (!user.get().getNfcCode().equals(nfcCode)) {
@@ -74,11 +72,11 @@ public class MainController {
                 redirectAttributes.addFlashAttribute("error", ex.getMessage());
             }
         }
-        return "redirect:/main";
+        return "redirect:/supervisorMain";
     }
 
-    @PostMapping("/logBreak")
-    public String logBreak(@RequestParam String nfcCode, RedirectAttributes redirectAttributes) {
+    @PostMapping("/supervisorLogBreak")
+    public String supervisorLogBreak(@RequestParam String nfcCode, RedirectAttributes redirectAttributes) {
         boolean isBreak = false;
         Optional<UserDto> user = userService.findAuthenticatedUser();
         if (!user.get().getNfcCode().equals(nfcCode)) {
@@ -94,33 +92,19 @@ public class MainController {
                 redirectAttributes.addFlashAttribute("error", ex.getMessage());
             }
         }
-        return "redirect:/main";
+        return "redirect:/supervisorMain";
     }
-
-    @RequestMapping("/settings")
-    String showSettings(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error) {
+    @RequestMapping("/supervisorSettings")
+    String supervisorShowSettings(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error) {
         EmployeeDto employee = employeeService.findAuthenticatedEmployee().get();
         UserDto user = userService.findAuthenticatedUser().get();
         model.addAttribute("employee", employee);
         model.addAttribute("user", user);
-        return "settings";
+        return "supervisor/supervisorSettings";
     }
 
-    @PostMapping("/updateEmployee")
-    String updateEmployee(@RequestParam String name, @RequestParam String surname, @RequestParam String email, RedirectAttributes redirectAttributes) {
-        try {
-            employeeService.updateEmployee(name, surname, email);
-            redirectAttributes.addFlashAttribute("info", "Profile was update");
-        } catch(Exception ex){
-            redirectAttributes.addFlashAttribute("error", ex.getMessage());
-            return "redirect:/settings";
-        }
-
-        return "redirect:/main";
-    }
-
-    @RequestMapping("/messages")
-    String showMessages(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error, @RequestParam(required = false) Integer recipientId) {
+    @RequestMapping("/supervisorMessages")
+    String supervisorShowMessages(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error, @RequestParam(required = false) Integer recipientId) {
         Optional<EmployeeDto> employee = employeeService.findAuthenticatedEmployee();
         List<MessageDto> messages = messageService.findMessagesByEmployeeId(employee.map(EmployeeDto::getId).orElse(null), recipientId);
         List<EmployeeDto> recipients = employeeService.findAllEmployeesExcludingGiven(employee.map(EmployeeDto::getId).orElse(null));
@@ -133,27 +117,86 @@ public class MainController {
         model.addAttribute("lastRecipientId", recipientId != null ? recipientId : (Integer) model.getAttribute("lastRecipientId"));
         model.addAttribute("currentEmployeeId", employee.get().getId());
 
-        return "messages";
+        return "supervisor/supervisorMessages";
     }
 
-    @GetMapping("/loadTableData")
+    @RequestMapping("/supervisorPresenceSubordinates")
+    String supervisorPresenceSubordinates(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error, @RequestParam(required = false) Integer subordinateId) {
+        List<EmployeeDto> subordinates = employeeService.findAllSupervisors();
+        model.addAttribute("subordinates", subordinates);
+        List<ReadoutDto> presenceSubordinateList = readoutService.loadReadoutList(PresenceType.P.name(), subordinateId);
+        model.addAttribute("presenceSubordinateList", presenceSubordinateList);
+        model.addAttribute("subordinateId", subordinateId);
+        return "supervisor/supervisorPresenceSubordinates";
+    }
+
+    @RequestMapping("/supervisorBrakeSubordinates")
+    String supervisorBrakeSubordinates(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error, @RequestParam(required = false) Integer subordinateId) {
+        List<EmployeeDto> subordinates = employeeService.findAllSupervisors();
+        model.addAttribute("subordinates", subordinates);
+        List<ReadoutDto> brakeSubordinateList = readoutService.loadReadoutList(PresenceType.B.name(), subordinateId);
+        model.addAttribute("brakeSubordinateList", brakeSubordinateList);
+        model.addAttribute("subordinateId", subordinateId);
+        return "supervisor/supervisorBrakeSubordinates";
+    }
+
+    @GetMapping("/supervisorLoadTablePresenceSubordinates")
     @ResponseBody
-    List<MessageDto> loadTableData(@RequestParam Integer recipientId) {
+    List<ReadoutDto> supervisorLoadTablePresenceSubordinates(@RequestParam Integer subordinateId) {
+        return readoutService.loadReadoutList(PresenceType.P.name(), subordinateId);
+    }
+
+    @GetMapping("/supervisorLoadTableBrakeSubordinates")
+    @ResponseBody
+    List<ReadoutDto> supervisorLoadTableBrakeSubordinates(@RequestParam Integer subordinateId) {
+        return readoutService.loadReadoutList(PresenceType.B.name(), subordinateId);
+    }
+
+    @RequestMapping("supervisorHolidaySubordinates")
+    String supervisorHolidaySubordinates(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error, @RequestParam(required = false) Integer subordinateId) {
+        if (!StringUtils.isEmpty(info))
+            model.addAttribute("info", info);
+        if (!StringUtils.isEmpty(error))
+            model.addAttribute("error", error);
+
+        List<EmployeeDto> subordinates = employeeService.findAllSupervisors();
+        model.addAttribute("subordinates", subordinates);
+        List<ReadoutDto> listHolidays = readoutService.loadHolidaysList(subordinateId);
+        model.addAttribute("listHolidays", listHolidays);
+        return "supervisor/supervisorHolidaySubordinates";
+    }
+
+    @GetMapping("/supervisorApprovalOrDisapprovalHolidaySubordinates")
+    @ResponseBody
+    List<ReadoutDto> supervisorApprovalOrDisapprovalHolidaySubordinates(@RequestParam Integer subordinateId, @RequestParam Integer readoutId) {
+        System.out.println(subordinateId + "" + readoutId);
+        return  readoutService.loadHolidaysList(subordinateId);
+    }
+
+    @GetMapping("/supervisorLoadTableHolidaySubordinates")
+    @ResponseBody
+    List<ReadoutDto> supervisorLoadTableHolidaySubordinates(@RequestParam Integer subordinateId) {
+        return readoutService.loadHolidaysList(subordinateId);
+    }
+
+    @GetMapping("/supervisorLoadTableData")
+    @ResponseBody
+    List<MessageDto> supervisorLoadTableData(@RequestParam Integer recipientId) {
         Optional<EmployeeDto> employee = employeeService.findAuthenticatedEmployee();
         return messageService.findMessagesByEmployeeId(employee.map(EmployeeDto::getId).orElse(null), recipientId);
     }
 
-    @PostMapping("/send")
+    @PostMapping("/supervisorSend")
     @ResponseBody
-    public ResponseEntity<Integer> sendMessage(@RequestBody MessageForm messageForm) {
+    public ResponseEntity<Integer> supervisorSendMessage(@RequestBody MessageForm messageForm) {
         Integer recipientId = messageForm.getRecipientId();
         String message = messageForm.getMessage();
         messageService.addMessage(message, recipientId);
         return ResponseEntity.ok(recipientId);
     }
 
-    @RequestMapping("/holidays")
-    String showHolidays(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error) {
+    @RequestMapping("supervisorHolidays")
+    String supervisorShowHolidays(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error) {
         if (!StringUtils.isEmpty(info))
             model.addAttribute("info", info);
         if (!StringUtils.isEmpty(error))
@@ -165,11 +208,11 @@ public class MainController {
         model.addAttribute("listHolidays", listHolidays);
         HolidayForm holidayForm = new HolidayForm();
         model.addAttribute("holidayForm", holidayForm);
-        return "holidays";
+        return "supervisor/supervisorHolidays";
     }
 
-    @PostMapping("/addHoliday")
-    public String addHoliday(@ModelAttribute HolidayForm holidayForm, RedirectAttributes redirectAttributes) {
+    @PostMapping("/supervisorAddHoliday")
+    public String supervisorAddHoliday(@ModelAttribute HolidayForm holidayForm, RedirectAttributes redirectAttributes) {
         Integer holidayTypeId = holidayForm.getHolidayTypeId();
         boolean isUsePeriod = holidayForm.isUsePeriod();;
         LocalDate startDate = holidayForm.getStartDate();
@@ -183,11 +226,11 @@ public class MainController {
             else if(holidayTypeId == null)
                 throw new RuntimeException("Type holiday can't be empty");
 
-                readoutService.addHoliday(holidayTypeId, startDate != null ? startDate : singleDate, endDate != null ? endDate : singleDate, false);
-                redirectAttributes.addFlashAttribute("info", "Holiday was added");
-            } catch(Exception ex){
-                redirectAttributes.addFlashAttribute("error", ex.getMessage());
-            }
-        return "redirect:/holidays";
+            readoutService.addHoliday(holidayTypeId, startDate != null ? startDate : singleDate, endDate != null ? endDate : singleDate, true);
+            redirectAttributes.addFlashAttribute("info", "Holiday was added");
+        } catch(Exception ex){
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/supervisorHolidays";
     }
 }

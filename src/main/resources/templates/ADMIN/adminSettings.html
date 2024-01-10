@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Main Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .background-image {
+            background-image: url('/images/office.jpg');
+            background-size: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="background-image">
+<nav class="navbar navbar-expand-md fixed-top text-dark bg-white" style="height: 70px;">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <a class="navbar-brand" href="main">TimeTeam Manager ADMIN</a>
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="d-flex justify-content-center" style="background-color: #6c757d; border-radius: 5px; width: 150px; height: 38px; margin-right: 10px;">
+                <p class="display-6" id="clock" style="margin-top: -7px; color: white;"></p>
+            </div>
+            <a href="logout">
+                <button class="btn btn-secondary" title="logout" ><i class="fa-solid fa-door-open"></i></button>
+            </a>
+        </div>
+    </div>
+</nav>
+<div style="width: 100%; margin-top: 70px;">
+    <div class="row">
+        <div class="col-md-2">
+        </div>
+        <div class="col-md-8">
+            <div class="jumbotron main-hello" style="background-color: rgba(200,200,200,0.9); margin-top: 20px">
+                <div>
+                    <div class="d-flex justify-content-center">
+                        <div th:if="${info != null}" style="margin-top: 10px;">
+                            <div class="alert alert-success">
+                                <h4 th:text="${info}"/>
+                            </div>
+                        </div>
+                        <div th:if="${error != null}" style="margin-top: 10px;">
+                            <div class="alert alert-danger">
+                                <h4 th:text="${error}"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="employeesTable">
+                            <h1 class="text-center" style="margin: 10px;">Employees</h1>
+                            <div class="row">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-10">
+                                    <div class="table-responsive" style="max-height: 450px; margin-bottom: 20px;">
+                                        <table class="table table-striped table-bordered table-hover">
+                                            <thead style="background-color: #888;">
+                                            <tr>
+                                                <th scope="col" class="text-center" width="15%">Name</th>
+                                                <th scope="col" class="text-center" width="15%">Surname</th>
+                                                <th scope="col" class="text-center" width="25%">Supervisor</th>
+                                                <th scope="col" class="text-center" width="15%">NFC Code</th>
+                                                <th scope="col" class="text-center" width="10%">Valid</th>
+                                                <th scope="col" class="text-center" width="20%">Action</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody style="vertical-align: middle;">
+                                            <tr th:each="employee : ${employees}">
+                                                <td th:text="${employee.id}" hidden></td>
+                                                <td th:text="${employee.name}" width="15%"></td>
+                                                <td th:text="${employee.surname}" width="15%"></td>
+                                                <td th:if="${employee.userName == employee.supervisorUserName}" style=" font-weight: bold;" width="25%">SUPERVISOR</td>
+                                                <td th:if="${employee.userName != employee.supervisorUserName && employee.supervisorUserName != null}" th:text="${employee.supervisorName + ' ' + employee.supervisorSurName}" width="25%"></td>
+                                                <td th:unless="${employee.supervisorUserName}" width="25%" style="text-align: center;"><i class="fas fa-times"></i></td>
+                                                <td width="15%" style="text-align: center;">
+                                                    <span th:if="${employee.nfcCode != null and !employee.nfcCode.isEmpty()}"><i class="fas fa-check"></i></span>
+                                                    <span th:if="${employee.nfcCode == null || employee.nfcCode.isEmpty()}"><i class="fas fa-times"></i></span>
+                                                </td>
+                                                <td width="10%" style="text-align: center;">
+                                                    <span th:if="${employee.isValid}"><i class="fas fa-check"></i></span>
+                                                    <span th:unless="${employee.isValid}"><i class="fas fa-times"></i></span>
+                                                </td>
+                                                <td class="text-center" width="20%" style="text-align: center; margin-top: 2px !important">
+                                                    <div class="d-flex flex-row justify-content-center align-items-center">
+                                                        <button type="button" style="margin-right: 10px;" class="btn btn-secondary adminSetSupervisor" data-bs-toggle="modal" data-bs-target="#adminSetSupervisorModal" title="Set Supervisor"><i class="fa-solid fa-user-plus"></i></button>
+                                                        <button type="button" style="margin-right: 10px;" class="btn btn-secondary adminSetNfcCode" data-bs-toggle="modal" data-bs-target="#adminSetNfcCodeModal" title="Set NFC Code"><i class="fa-solid fa-wifi"></i></button>
+                                                        <form id="adminSetValidForm-${employee.id}" action="/adminSetValid" th:action="@{/adminSetValid}" method="post">
+                                                            <input type="hidden" th:id="${'employeeId2-' + employee.id}"  name="employeeId2" th:value="${employee.id}" />
+                                                            <button type="submit" class="btn btn-secondary adminSetValid" th:title="${employee.isValid ? 'Set invalid' : 'Set valid'}"><i th:class="${employee.isValid} ? 'fa-solid fa-user-xmark' : 'fa-solid fa-user-check'"></i></button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-1">
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+        </div>
+    </div>
+</div>
+<footer class="bg-body-tertiary text-center text-lg-start">
+    <div class="text-center p-3 text-dark bg-white" style="position: fixed; bottom: 0; width: 100%; height: 70px;">
+        2023 Gabriel Szybiak
+    </div>
+</footer>
+
+<!-- Set NFC Code Modal Window -->
+<div class="modal fade" id="adminSetNfcCodeModal" tabindex="-1" aria-labelledby="adminSetNfcCodeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="adminSetNfcCodeModalLabel">Set NFC Code for select employee </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <form id="adminSetNfcCodeForm" action="/adminSetNfcCode" th:action="@{/adminSetNfcCode}" method="post" style="text-align: left;">
+                    <input type="hidden" id="employeeId1"  name="employeeId1" />
+                    <div class="form-outline mb-4">
+                        <input type="password" id="nfcCode" class="form-control form-control-lg" autofocus name="nfcCode" placeholder="Tap employee's NFC card to set"/>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-secondary">Cancel</button>
+                        <button style="margin-left: 10px;" type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Set Supervisor Modal Window -->
+<div class="modal fade" id="adminSetSupervisorModal" tabindex="-1" aria-labelledby="adminSetSupervisorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="adminSetSupervisorModalLabel">Set Supervisor for select employee </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <form id="adminSetSupervisorForm" action="/adminSetSupervisor" th:action="@{/adminSetSupervisor}" method="post" style="text-align: left;">
+                    <input type="hidden" id="employeeId3"  name="employeeId3"/>
+                    <input type="hidden" id="supervisorId"  name="supervisorId"/>
+                    <div class="form-outline mb-4">
+                        <div class="dropdown d-flex justify-content-center" style="margin-bottom: 20px">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="supervisorDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Select supervisor
+                            </button>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="supervisorDropdown">
+                                <li th:id="supervisorId" th:each="employee : ${employees}">
+                                    <a class="dropdown-item" href="#"
+                                       th:data-supervisor-id="${employee.id}"
+                                       th:data-supervisor-name="${employee.name + ' ' + employee.surname}"
+                                       onclick="updateSupervisorText(event, this)">
+                                        <span th:text="${employee.name} + ' ' + ${employee.surname}"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-secondary">Cancel</button>
+                        <button style="margin-left: 10px;" type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateSupervisorText(event, selectedItem) {
+        event.preventDefault();
+
+        var supervisorText = selectedItem.innerText.trim();
+        document.getElementById('supervisorDropdown').innerText = supervisorText;
+
+        var supervisorIdInput = document.getElementById("supervisorId");
+        var supervisorId = selectedItem.getAttribute("data-supervisor-id");
+        document.getElementById("supervisorId").value = supervisorId;
+
+        supervisorIdInput.value = supervisorId;
+
+        var supervisorDropdown = document.getElementById("supervisorDropdown");
+        supervisorDropdown.setAttribute("data-supervisor-id", supervisorId);
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        var buttons = document.querySelectorAll('.adminSetNfcCode, .adminSetSupervisor, .adminSetValid');
+
+        buttons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                var row = this.closest('tr');
+                var employeeId = row.querySelector('td:first-child').innerText;
+
+                if (this.classList.contains('adminSetNfcCode')) {
+                    document.getElementById('employeeId1').value = employeeId;
+                } else if (this.classList.contains('adminSetValid')) {
+                    document.getElementById('employeeId2-' + employeeId).value = employeeId;
+                } else if (this.classList.contains('adminSetSupervisor')) {
+                    document.getElementById('employeeId3').value = employeeId;
+                }
+
+            });
+        });
+    });
+    function updateClock() {
+        var now = new Date();
+
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+        var seconds = now.getSeconds();
+
+        hours = (hours < 10) ? "0" + hours : hours;
+        minutes = (minutes < 10) ? "0" + minutes : minutes;
+        seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+        document.getElementById("clock").innerHTML = hours + ":" + minutes + ":" + seconds;
+
+        setTimeout(updateClock, 1000);
+    }
+
+    window.onload = updateClock;
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-package szybiakg.loginPage.Security;
+package szybiakg.loginPage.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,12 +19,14 @@ class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.formLogin(login -> login.loginPage("/login").permitAll()
-                .successForwardUrl("/main")
-                .failureUrl("/login?error=loginError"));
-        http.logout(logout -> logout.logoutSuccessUrl("/logout").permitAll());
+                .successHandler(new LoginSuccessHandler())
+                .failureUrl("/login?error=Incorrect+data"));
+        http.logout(logout -> logout.logoutSuccessUrl("/login?info=User+was+logged+out").permitAll());
         http.authorizeHttpRequests(
                 requests -> requests
-                        .requestMatchers("/", "/css/**", "/images/**", "/js/**","/addNewUser").permitAll()
+                        .requestMatchers("/", "/css/**", "/images/**", "/js/**","/addNewUser","/logWithoutAuthBreak","/logWithoutAuthPresence").permitAll()
+                        .requestMatchers("/admin*").hasRole("ADMIN")
+                        .requestMatchers("/supervisor*").hasRole("SUPERVISOR")
                         .anyRequest().authenticated()
         );
 

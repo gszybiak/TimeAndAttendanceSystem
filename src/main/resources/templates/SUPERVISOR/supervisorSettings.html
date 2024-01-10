@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Main Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .background-image {
+            background-image: url('/images/office.jpg');
+            background-size: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="background-image">
+<nav class="navbar navbar-expand-md fixed-top text-dark bg-white" style="height: 70px;">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <a class="navbar-brand" href="supervisorMain">TimeTeam Manager SUPERVISOR</a>
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="d-flex justify-content-center" style="background-color: #6c757d; border-radius: 5px; width: 150px; height: 38px; margin-right: 10px;">
+                <p class="display-6" id="clock" style="margin-top: -7px; color: white;"></p>
+            </div>
+            <a href="messages">
+                <button id="btnMessages" title="messages" class="btn btn-secondary" style="margin-right: 10px;" ><i class="fa-solid fa-envelope"></i></button>
+            </a>
+            <a href="supervisorSettings">
+                <button id="btnSettings" title="settings" class="btn btn-secondary" style="margin-right: 10px;" ><i class="fas fa-cog"></i></button>
+            </a>
+            <a href="logout">
+                <button class="btn btn-secondary" title="logout" ><i class="fa-solid fa-door-open"></i></button>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div style="width: 100%; margin-top: 70px;">
+    <div class="row">
+        <div class="col-md-2">
+        </div>
+
+        <div class="col-md-8">
+            <div class="jumbotron main-hello" style="background-color: rgba(200,200,200,0.9); margin-top: 20px">
+                <div>
+                    <div class="d-flex justify-content-center">
+                        <div th:if="${info != null}" style="margin-top: 10px;">
+                            <div class="alert alert-success">
+                                <h4 th:text="${info}"/>
+                            </div>
+                        </div>
+                        <div th:if="${error != null}" style="margin-top: 10px;">
+                            <div class="alert alert-danger">
+                                <h4 th:text="${error}"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                        </div>
+                        <div class="col-md-6">
+                            <form action="/updateEmployee" method="post">
+                                <h1 class="text-center" style="margin: 10px;">Settings</h1>
+                                <div style="margin-right: -20px; font-size: 1.25em;">
+                                    <p style="margin-right: 10px; margin-top: 10px">Logged in as: <span style="font-weight: bold;" th:text="${user.username}"/></p>
+                                    <p>Your supervisor is: <span style="font-weight: bold;" th:text="${employee.supervisorName + ' ' + employee.supervisorSurName}"/></p>
+                                    <div style="width: 100%;"  class="d-flex align-items-center">
+                                        <p style="width: 150px; margin-top: 15px; margin-right: 10px;">Your name: </p>
+                                        <input style="width: 300px;  line-height: 0.75;" type="text" th:value="${employee.name}" th:placeholder="${employee.name}" class="form-control form-control-lg" id="name" name="name" />
+                                    </div>
+                                    <div style="width: 100%;"  class="d-flex align-items-center">
+                                        <p style="width: 150px; margin-top: 15px; margin-right: 10px;">Your surname: </p>
+                                        <input style="width: 300px; line-height: 0.75;" type="text" th:value="${employee.surname}" th:placeholder="${employee.surname}" class="form-control form-control-lg" id="surname" name="surname" />
+                                    </div>
+                                    <div style="width: 100%;"  class="d-flex align-items-center">
+                                        <p style="width: 150px; margin-top: 15px; margin-right: 10px;">Your email: </p>
+                                        <input style="width: 300px; line-height: 0.75;" type="text" th:value="${employee.email}" th:placeholder="${employee.email}" class="form-control form-control-lg" id="email" name="email" />
+                                    </div>
+                                    <div style="width: 100%; margin-top: 10px; margin-bottom: 20px;"  class="d-flex justify-content-center">
+                                        <button type="button" onclick="redirectToMain()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+                                        <button type="submit" class="btn btn-secondary" >Update Data</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-3">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+        </div>
+    </div>
+</div>
+<footer class="bg-body-tertiary text-center text-lg-start">
+    <div class="text-center p-3 text-dark bg-white" style="position: fixed; bottom: 0; width: 100%; height: 70px;">
+        2023 Gabriel Szybiak
+    </div>
+</footer>
+</body>
+<script>
+    function updateClock() {
+        var now = new Date();
+
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+        var seconds = now.getSeconds();
+
+        hours = (hours < 10) ? "0" + hours : hours;
+        minutes = (minutes < 10) ? "0" + minutes : minutes;
+        seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+        document.getElementById("clock").innerHTML = hours + ":" + minutes + ":" + seconds;
+
+        setTimeout(updateClock, 1000);
+    }
+
+    window.onload = updateClock;
+
+    function redirectToMain() {
+        window.location.href = '/main';
+    }
+</script>
+</html>

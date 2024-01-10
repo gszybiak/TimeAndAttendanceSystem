@@ -1,4 +1,4 @@
-package szybiakg.loginPage.Security;
+package szybiakg.loginPage.security;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
