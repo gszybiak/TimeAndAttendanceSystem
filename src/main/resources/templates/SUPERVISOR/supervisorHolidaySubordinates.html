@@ -61,8 +61,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row" id="messages">
-                        <h1 class="text-center" style="margin-top: 10px;">Holidays of Subordinates</h1>
+                    <div class="row" id="subordinatesHoliday">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h1 class="text-center" style="margin: 10px; padding-left: 50px; flex-grow: 1;">Holidays of Subordinates</h1>
+                            <form id="holidaySubordinatePdfForm" action="/generateHolidaySubordinatesPdf" method="get">
+                                <input type="hidden" id="selectedHolidaySubordinateIdPdf" name="subordinateId"/>
+                                <button id="btnSubordinatePdf" type="submit" title="generateHolidaySubordinatesPdf" class="btn btn-secondary" style="margin-right: 10px;  display: none;" ><i class="fa-solid fa-file-pdf"></i></button>
+                            </form>
+                            <form id="holidaySubordinateExcelForm" action="/generateHolidaySubordinatesExcel" method="get">
+                                <input type="hidden" id="selectedHolidaySubordinateIdExcel" name="subordinateId"/>
+                                <button id="btnSubordinateExcel" type="submit" title="generateHolidaySubordinatesExcel" class="btn btn-secondary" style="margin-right: 10px;  display: none;" ><i class="fa-solid fa-file-csv"></i></button>
+                            </form>
+                        </div>
                         <div class="col-md-1">
                         </div>
                         <div class="col-md-10" style="margin-top: 20px;">
@@ -91,7 +101,6 @@
                                             <th scope="col" class="text-center" width="25%">End</th>
                                             <th scope="col" class="text-center" width="25%">Duration (days)</th>
                                             <th scope="col" class="text-center" width="25%">Approval</th>
-                                            <th scope="col" class="text-center" width="20%">Action</th>
                                         </tr>
                                         </thead>
                                         <tbody id="tableBody">
@@ -105,14 +114,19 @@
                                                 <span th:if="${holiday.isApproval}"><i class="fas fa-check"></i></span>
                                                 <span th:unless="${holiday.isApproval}"><i class="fas fa-times"></i></span>
                                             </td>
-                                            <td class="text-center" width="20%" style="text-align: center;">
-                                                <button th:onclick="'updateApproval(event, this, ' + ${holiday.id} + ')'" style="height: 25px; width: 30px; padding: 0; margin-bottom: 0; display: inline-block;" th:title="${holiday.isApproval ? 'Set disapprove' : 'Set approve'}"><i th:class="${holiday.isApproval} ? 'fa-solid fa-user-xmark' : 'fa-solid fa-user-check'"></i></button>
-                                            </td>
                                         </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </form>
+                        </div>
+                        <div class="row">
+                            <div class="dropdown d-flex justify-content-center">
+                                <form id="approveHolidaysFrom" action="/approveHolidays" method="get">
+                                    <input type="hidden" id="selectedSubordinateToApprove" name="subordinateId"/>
+                                    <button id="btnApproveHolidays" type="submit" class="btn btn-secondary" style="margin-bottom: 20px; margin-left: 25px; display: none;" >Approve holidays</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -161,6 +175,12 @@
 
             var subordinateDropdown = document.getElementById("subordinateDropdown");
             subordinateDropdown.setAttribute("data-last-subordinate-id", subordinateId);
+            document.getElementById("selectedHolidaySubordinateIdPdf").value = subordinateId;
+            document.getElementById("selectedHolidaySubordinateIdExcel").value = subordinateId;
+            document.getElementById("selectedSubordinateToApprove").value = subordinateId;
+            document.getElementById("btnSubordinatePdf").style.display = "block";
+            document.getElementById("btnSubordinateExcel").style.display = "block";
+            document.getElementById("btnApproveHolidays").style.display = "block";
 
             loadTableData(subordinateId);
         }
@@ -168,20 +188,6 @@
         $(document).ready(function () {
             loadTableData(null);
         });
-
-        function updateApproval(readoutId) {
-            $.ajax({
-                type: "GET",
-                url: "/supervisorApprovalOrDisapprovalHolidaySubordinates",
-                data: { readoutId: readoutId},
-                success: function(subordinateId) {
-                    loadTableData(subordinateId);
-                },
-                error: function(error) {
-                    console.error('Error:', error);
-                }
-            });
-        }
 
         function loadTableData(subordinateId) {
             $.ajax({
@@ -204,17 +210,12 @@
             data.forEach(holiday => {
                 var row = document.createElement("tr");
                 var approvalIcon = holiday.isApproval ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>';
-                var approvalButton = holiday.isApproval ? '<i class="fas fa-times"></i>' : '<i class="fas fa-check"></i>';
-                var approbalTitle = holiday.isApproval ? 'Set disapprove' : 'Set approve';
                 row.innerHTML = `<td hidden>${holiday.id}</td>
                      <td width="25%">${holiday.nameReadoutType}</td>
                      <td width="25%">${holiday.startTime}</td>
                      <td width="25%">${holiday.endTime}</td>
                      <td width="25%">${holiday.duration}</td>
-                     <td width="25%" style="text-align: center;">${approvalIcon}</td>
-                     <td width="25%" style="text-align: center;">
-                        <button onclick="updateApproval(event, this, ${holiday.id})" style="height: 25px; width: 30px; padding: 0; margin-bottom: 0; display: inline-block;" class="btn btn-secondary" th:title="${approbalTitle}">${approvalButton}</button>
-                     </td>`;
+                     <td width="25%" style="text-align: center;">${approvalIcon}</td>`;
                 tableBody.appendChild(row);
             });
         }

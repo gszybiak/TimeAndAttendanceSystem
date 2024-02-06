@@ -59,8 +59,16 @@
                             </div>
                         </div>
                     </div>
-                    <h1 class="text-center" style="margin: 10px;">Holidays</h1>
-                    <div class="row">
+                    <div class="row" id="timeHoliday">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h1 class="text-center" style="margin: 10px; padding-left: 50px; flex-grow: 1;">Holidays</h1>
+                            <a href="generateHolidayPdf">
+                                <button id="btnGenerateHolidayPdf" title="generateHolidayPdf" class="btn btn-secondary" style="margin-right: 10px;" ><i class="fa-solid fa-file-pdf"></i></button>
+                            </a>
+                            <a href="generateHolidayExcel">
+                                <button id="btnGenerateHolidayExcel" title="generateHolidayExcel" class="btn btn-secondary" style="margin-right: 10px;" ><i class="fa-solid fa-file-csv"></i></button>
+                            </a>
+                        </div>
                         <div class="col-md-2">
                         </div>
                         <div id="holidayTable" class="col-md-8" style="margin-top: 20px;">

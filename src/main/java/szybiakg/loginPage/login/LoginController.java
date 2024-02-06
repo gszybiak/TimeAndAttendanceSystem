@@ -20,8 +20,8 @@ import java.util.Optional;
 @Controller
 public class LoginController {
 
-    private UserService userService;
-    private ReadoutService readoutService;
+    private final UserService userService;
+    private final ReadoutService readoutService;
 
     public LoginController(UserService userService, ReadoutService readoutService) {
         this.userService = userService;

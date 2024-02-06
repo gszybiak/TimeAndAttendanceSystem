@@ -1,9 +1,7 @@
 package szybiakg.loginPage.readout;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import szybiakg.loginPage.employee.Employee;
 
 import java.time.Duration;

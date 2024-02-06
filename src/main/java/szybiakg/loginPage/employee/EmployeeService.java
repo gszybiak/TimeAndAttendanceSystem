@@ -14,15 +14,13 @@ import java.util.stream.Collectors;
 @Service
 public class EmployeeService {
 
-    private final UserService userService;
     private final EmployeeRepository employeeRepository;
 
     private final UserRepository userRepository;
     private final EmployeeDtoMapper employeeDtoMapper;
 
-    public EmployeeService(EmployeeRepository employeeRepository, UserService userService, UserRepository userRepository, EmployeeDtoMapper employeeDtoMapper) {
+    public EmployeeService(EmployeeRepository employeeRepository, UserRepository userRepository, EmployeeDtoMapper employeeDtoMapper) {
         this.employeeRepository = employeeRepository;
-        this.userService = userService;
         this.userRepository = userRepository;
         this.employeeDtoMapper = employeeDtoMapper;
     }
@@ -44,7 +42,6 @@ public class EmployeeService {
 
     public List<EmployeeDto> findAllSupervisors() {
         Integer userId = AuthHelper.getAuthenticatedUserId();
-//        Optional<Employee> supervisor = employeeRepository.findByUserId(userId);
         List<Employee> employees = (List<Employee>) employeeRepository.findAll();
         return employees.stream()
                 .filter(employee -> !hasAdminRole(employee.getUser()))

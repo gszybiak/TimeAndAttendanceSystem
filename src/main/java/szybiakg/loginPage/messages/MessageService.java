@@ -1,7 +1,6 @@
 package szybiakg.loginPage.messages;
 
 import org.springframework.stereotype.Service;
-import szybiakg.loginPage.employee.Employee;
 import szybiakg.loginPage.employee.EmployeeDto;
 import szybiakg.loginPage.employee.EmployeeService;
 

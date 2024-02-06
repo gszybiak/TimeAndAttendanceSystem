@@ -3,8 +3,6 @@ package szybiakg.loginPage.employee;
 import org.springframework.stereotype.Service;
 import szybiakg.loginPage.user.UserService;
 
-import java.util.Optional;
-
 @Service
 public class EmployeeDtoMapper {
 

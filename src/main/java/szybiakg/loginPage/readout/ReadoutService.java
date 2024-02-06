@@ -2,19 +2,14 @@ package szybiakg.loginPage.readout;
 
 import org.springframework.stereotype.Service;
 import szybiakg.loginPage.employee.Employee;
-import szybiakg.loginPage.employee.EmployeeDto;
 import szybiakg.loginPage.employee.EmployeeService;
-import szybiakg.loginPage.messages.Message;
-import szybiakg.loginPage.messages.MessageDto;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -188,6 +183,7 @@ public class ReadoutService {
                 .map(holiday -> {
             ReadoutDto readoutDto = new ReadoutDto();
             readoutDto.setId(holiday.getId());
+            readoutDto.setEmployeeId(holiday.getEmployee().getId());
             readoutDto.setStartTime(formatLocalDateTimeHoliday(holiday.getStartTime()));
             readoutDto.setEndTime(formatLocalDateTimeHoliday(holiday.getEndTime()));
             readoutDto.setDuration(calculateWorkdays(holiday.getStartTime(), holiday.getEndTime()));
@@ -197,15 +193,30 @@ public class ReadoutService {
         }).collect(Collectors.toList());
     }
 
+    public boolean approveHolidays(Integer employeeId){
+        Employee employee = employeeService.findById(employeeId).get();
+        List<Readout> readoutList = readoutRepository.findAllByEmployeeOrderByIdDesc(employee).get()
+                .stream()
+                .filter(readout -> !readout.getReadoutType().getSymbol().equals("P") && !readout.getReadoutType().getSymbol().equals("B"))
+                .toList();
+
+        for (Readout readout : readoutList) {
+            readout.setIsApproval(true);
+        }
+
+        readoutRepository.saveAll(readoutList);
+        return true;
+    }
+
     public static String calculateWorkdays(LocalDateTime start, LocalDateTime end) {
         long workdays = 0;
         LocalDateTime current = start;
 
-        while (!current.isAfter(end)) {
+        while (current.compareTo(end) <= 0) {
             if (current.getDayOfWeek() != DayOfWeek.SATURDAY && current.getDayOfWeek() != DayOfWeek.SUNDAY) {
                 workdays++;
             }
-            current = current.plus(1, ChronoUnit.DAYS);
+            current = current.plusDays(1);
         }
         return String.valueOf(workdays);
     }

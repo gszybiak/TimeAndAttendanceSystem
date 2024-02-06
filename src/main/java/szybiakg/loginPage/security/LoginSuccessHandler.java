@@ -26,7 +26,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
                     targetUrl = "/supervisorMain";
                     break;
                 default:
-                    targetUrl = "/main";
+                    targetUrl = "/controllers";
                     break;
             }
         }

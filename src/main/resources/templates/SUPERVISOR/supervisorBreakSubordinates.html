@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Brake Subordinates</title>
+    <title>Break Subordinates</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -68,8 +68,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row" id="messages">
-                        <h1 class="text-center" style="margin-top: 10px;">Brake of Subordinates</h1>
+                    <div class="row" id="subordinatesBreak">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h1 class="text-center" style="margin: 10px; padding-left: 50px; flex-grow: 1;">Breaks of Subordinates</h1>
+                            <form id="breakSubordinatePdfForm" action="/generateBreakSubordinatesPdf" method="get">
+                                <input type="hidden" id="selectedBreakSubordinateIdPdf" name="subordinateId"/>
+                                <button id="btnSubordinatePdf" type="submit" title="generateBreakSubordinatesPdf" class="btn btn-secondary" style="margin-right: 10px; display: none;" ><i class="fa-solid fa-file-pdf"></i></button>
+                            </form>
+                            <form id="breakSubordinateExcelForm" action="/generateBreakSubordinatesExcel" method="get">
+                                <input type="hidden" id="selectedBreakSubordinateIdExcel" name="subordinateId"/>
+                                <button id="btnSubordinateExcel" type="submit" title="generateBreakSubordinatesExcel" class="btn btn-secondary" style="margin-right: 10px; display: none;" ><i class="fa-solid fa-file-csv"></i></button>
+                            </form>
+                        </div>
                         <div class="col-md-2">
                         </div>
                         <div class="col-md-8" style="margin-top: 20px;">
@@ -99,11 +109,11 @@
                                         </tr>
                                         </thead>
                                         <tbody id="tableBody">
-                                        <tr th:each="brake : ${brakeSubordinateList}">
-                                            <td th:text="${brake.id}" hidden></td>
-                                            <td th:text="${brake.startTime}" width="30%"></td>
-                                            <td th:text="${brake.endTime}" width="30%"></td>
-                                            <td th:text="${brake.duration}" width="20%"></td>
+                                        <tr th:each="break : ${breakSubordinateList}">
+                                            <td th:text="${break.id}" hidden></td>
+                                            <td th:text="${break.startTime}" width="30%"></td>
+                                            <td th:text="${break.endTime}" width="30%"></td>
+                                            <td th:text="${break.duration}" width="20%"></td>
                                         </tr>
                                         </tbody>
                                     </table>
@@ -157,6 +167,10 @@
 
             var subordinateDropdown = document.getElementById("subordinateDropdown");
             subordinateDropdown.setAttribute("data-last-subordinate-id", subordinateId);
+            document.getElementById("selectedBreakSubordinateIdPdf").value = subordinateId;
+            document.getElementById("selectedBreakSubordinateIdExcel").value = subordinateId;
+            document.getElementById("btnSubordinatePdf").style.display = "block";
+            document.getElementById("btnSubordinateExcel").style.display = "block";
 
             loadTableData(subordinateId);
         }
@@ -168,7 +182,7 @@
         function loadTableData(subordinateId) {
             $.ajax({
                 type: "GET",
-                url: "/supervisorLoadTableBrakeSubordinates",
+                url: "/supervisorLoadTableBreakSubordinates",
                 data: { subordinateId: subordinateId },
                 success: function(data) {
                     updateTable(data);
@@ -183,12 +197,12 @@
             var tableBody = document.getElementById("tableBody");
             tableBody.innerHTML = "";
 
-            data.forEach(brake => {
+            data.forEach(breaks => {
                 var row = document.createElement("tr");
-                row.innerHTML = `<td hidden>${brake.id}</td>
-                     <td width="30%">${brake.startTime}</td>
-                      <td width="30%">${brake.endTime}</td>
-                     <td width="30%">${brake.duration}</td>`;
+                row.innerHTML = `<td hidden>${breaks.id}</td>
+                     <td width="30%">${breaks.startTime}</td>
+                      <td width="30%">${breaks.endTime}</td>
+                     <td width="30%">${breaks.duration}</td>`;
                 tableBody.appendChild(row);
             });
         }
