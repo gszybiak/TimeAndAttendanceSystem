@@ -32,7 +32,3 @@ To run the Time and Attendance System locally, follow these steps:
 ## Usage
 
 Once the application is running, access it through your web browser and log in with your credentials. From there, you can manage employee attendance, track time spent on tasks, and generate reports as needed.
-
-## Contributing
-
-Contributions to the Time and Attendance System are welcome! If you have any suggestions, bug reports, or feature requests, please open an issue or submit a pull request on GitHub.
