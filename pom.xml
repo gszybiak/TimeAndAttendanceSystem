@@ -7,11 +7,11 @@
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.2.0</version>
 	</parent>
-	<groupId>szybiakg</groupId>
-	<artifactId>LoginPage</artifactId>
+	<groupId>pl.szybiakg</groupId>
+	<artifactId>TimeAndAttendanceSystem</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>LoginPage</name>
-	<description>LoginPage</description>
+	<name>TimeAndAttendanceSystem</name>
+	<description>A comprehensive system for managing employee attendance and tracking time worked on various tasks and projects.</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -44,10 +44,6 @@
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
 			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

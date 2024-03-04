@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mariadb://127.0.0.1:3306/unknown?createDatabaseIfNotExist=true
-    username: root
-    password: mario
+    url: jdbc:mariadb://127.0.0.1:3306/TimeAndAttendanceSystem?createDatabaseIfNotExist=true
+    username:
+    password:
   jpa:
     hibernate:
       ddl-auto: update
