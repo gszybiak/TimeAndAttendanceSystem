@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 class SecurityConfig {
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
     @Bean
@@ -24,7 +24,7 @@ class SecurityConfig {
         http.logout(logout -> logout.logoutSuccessUrl("/login?info=User+was+logged+out").permitAll());
         http.authorizeHttpRequests(
                 requests -> requests
-                        .requestMatchers("/", "/css/**", "/images/**", "/js/**","/addNewUser","/logWithoutAuthBreak","/logWithoutAuthPresence").permitAll()
+                        .requestMatchers("/", "/css/**", "/images/**", "/js/**","/user/add","/logWithoutAuthBreak","/logWithoutAuthPresence").permitAll()
                         .requestMatchers("/admin*").hasRole("ADMIN")
                         .requestMatchers("/supervisor*").hasRole("SUPERVISOR")
                         .anyRequest().authenticated()

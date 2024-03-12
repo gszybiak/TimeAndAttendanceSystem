@@ -5,26 +5,18 @@
     <title>Main Page</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <style>
-        .background-image {
-            background-image: url('/images/office.jpg');
-            background-size: 100%;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }
-    </style>
 </head>
 <body class="background-image">
-<nav class="navbar navbar-expand-md fixed-top text-dark bg-white" style="height: 70px;">
+<nav class="navbar navbar-expand-md fixed-top text-dark bg-white height-70">
     <div class="container-fluid d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center">
             <a class="navbar-brand" href="main">TimeTeam Manager ADMIN</a>
         </div>
         <div class="d-flex align-items-center">
-            <div class="d-flex justify-content-center" style="background-color: #6c757d; border-radius: 5px; width: 150px; height: 38px; margin-right: 10px;">
-                <p class="display-6" id="clock" style="margin-top: -7px; color: white;"></p>
+            <div class="d-flex justify-content-center background-light-grey-clock">
+                <p class="display-6 white-clock" id="clock"></p>
             </div>
             <a href="logout">
                 <button class="btn btn-secondary" title="logout" ><i class="fa-solid fa-door-open"></i></button>
@@ -37,29 +29,29 @@
         <div class="col-md-2">
         </div>
         <div class="col-md-8">
-            <div class="jumbotron main-hello" style="background-color: rgba(200,200,200,0.9); margin-top: 20px">
+            <div class="jumbotron main-hello background-md8">
                 <div>
                     <div class="d-flex justify-content-center">
-                        <div th:if="${info != null}" style="margin-top: 10px;">
+                        <div class="margin-top-10" th:if="${info != null}">
                             <div class="alert alert-success">
                                 <h4 th:text="${info}"/>
                             </div>
                         </div>
-                        <div th:if="${error != null}" style="margin-top: 10px;">
+                        <div class="margin-top-10" th:if="${error != null}">
                             <div class="alert alert-danger">
                                 <h4 th:text="${error}"/>
                             </div>
                         </div>
                     </div>
                     <div class="row" id="employeesTable">
-                            <h1 class="text-center" style="margin: 10px;">Employees</h1>
+                            <h1 class="text-center margin-10">Employees</h1>
                             <div class="row">
                                 <div class="col-md-1">
                                 </div>
                                 <div class="col-md-10">
-                                    <div class="table-responsive" style="max-height: 450px; margin-bottom: 20px;">
+                                    <div class="table-responsive table-450">
                                         <table class="table table-striped table-bordered table-hover">
-                                            <thead style="background-color: #888;">
+                                            <thead class="background-gray">
                                             <tr>
                                                 <th scope="col" class="text-center" width="15%">Name</th>
                                                 <th scope="col" class="text-center" width="15%">Surname</th>
@@ -90,7 +82,7 @@
                                                         <button type="button" style="margin-right: 10px;" class="btn btn-secondary adminSetSupervisor" data-bs-toggle="modal" data-bs-target="#adminSetSupervisorModal" title="Set Supervisor"><i class="fa-solid fa-user-plus"></i></button>
                                                         <button type="button" style="margin-right: 10px;" class="btn btn-secondary adminSetNfcCode" data-bs-toggle="modal" data-bs-target="#adminSetNfcCodeModal" title="Set NFC Code"><i class="fa-solid fa-wifi"></i></button>
                                                         <form id="adminSetValidForm-${employee.id}" action="/adminSetValid" th:action="@{/adminSetValid}" method="post">
-                                                            <input type="hidden" th:id="${'employeeId2-' + employee.id}"  name="employeeId2" th:value="${employee.id}" />
+                                                            <input type="hidden" th:id="${'employeeIdSetValid-' + employee.id}"  name="employeeIdSetValid" th:value="${employee.id}" />
                                                             <button type="submit" class="btn btn-secondary adminSetValid" th:title="${employee.isValid ? 'Set invalid' : 'Set valid'}"><i th:class="${employee.isValid} ? 'fa-solid fa-user-xmark' : 'fa-solid fa-user-check'"></i></button>
                                                         </form>
                                                     </div>
@@ -127,7 +119,7 @@
             </div>
             <div class="modal-body text-center">
                 <form id="adminSetNfcCodeForm" action="/adminSetNfcCode" th:action="@{/adminSetNfcCode}" method="post" style="text-align: left;">
-                    <input type="hidden" id="employeeId1"  name="employeeId1" />
+                    <input type="hidden" id="employeeIdNfcCode"  name="employeeIdNfcCode" />
                     <div class="form-outline mb-4">
                         <input type="password" id="nfcCode" class="form-control form-control-lg" autofocus name="nfcCode" placeholder="Tap employee's NFC card to set"/>
                     </div>
@@ -151,7 +143,7 @@
             </div>
             <div class="modal-body text-center">
                 <form id="adminSetSupervisorForm" action="/adminSetSupervisor" th:action="@{/adminSetSupervisor}" method="post" style="text-align: left;">
-                    <input type="hidden" id="employeeId3"  name="employeeId3"/>
+                    <input type="hidden" id="employeeIdSetSupervisor"  name="employeeIdSetSupervisor"/>
                     <input type="hidden" id="supervisorId"  name="supervisorId"/>
                     <div class="form-outline mb-4">
                         <div class="dropdown d-flex justify-content-center" style="margin-bottom: 20px">
@@ -205,11 +197,11 @@
                 var employeeId = row.querySelector('td:first-child').innerText;
 
                 if (this.classList.contains('adminSetNfcCode')) {
-                    document.getElementById('employeeId1').value = employeeId;
+                    document.getElementById('employeeIdNfcCode').value = employeeId;
                 } else if (this.classList.contains('adminSetValid')) {
-                    document.getElementById('employeeId2-' + employeeId).value = employeeId;
+                    document.getElementById('employeeIdSetValid-' + employeeId).value = employeeId;
                 } else if (this.classList.contains('adminSetSupervisor')) {
-                    document.getElementById('employeeId3').value = employeeId;
+                    document.getElementById('employeeIdSetSupervisor').value = employeeId;
                 }
 
             });

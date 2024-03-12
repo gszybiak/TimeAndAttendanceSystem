@@ -6,7 +6,6 @@ import szybiakg.loginPage.auth.AuthHelper;
 import szybiakg.loginPage.auth.UserCredentialsDto;
 import szybiakg.loginPage.employee.Employee;
 import szybiakg.loginPage.employee.EmployeeRepository;
-import szybiakg.loginPage.employee.EmployeeService;
 
 import java.util.Optional;
 
@@ -15,11 +14,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final EmployeeRepository employeeRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-
-    public UserService(UserRepository userRepository, EmployeeRepository employeeRepository) {
+    public UserService(UserRepository userRepository, EmployeeRepository employeeRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
         this.employeeRepository = employeeRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     public Optional<UserCredentialsDto> findCredentialsByLogin(String login) {
@@ -53,7 +53,7 @@ public class UserService {
     }
 
     public Optional<UserDto> findUserById(Integer id) {
-        return userRepository.findUserById(id)
+        return userRepository.findById(id)
                 .map(user -> {
                     UserDto userDto = new UserDto();
                     userDto.setId(user.getId());
@@ -70,7 +70,7 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    public void addUser(UserDto userDto) {
+    public void add(UserDto userDto) {
         if (userRepository.findByUsername(userDto.getUsername()).isPresent()) {
             throw new IllegalArgumentException("Username already exists");
         }
@@ -78,9 +78,7 @@ public class UserService {
         User user = new User();
         user.setUsername(userDto.getUsername());
 
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String password = passwordEncoder.encode(userDto.getPassword());
-
+        String password = bCryptPasswordEncoder.encode(userDto.getPassword());
         user.setPassword(password);
         User savedUser = userRepository.save(user);
 

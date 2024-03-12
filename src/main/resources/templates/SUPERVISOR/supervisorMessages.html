@@ -29,16 +29,16 @@
 <nav class="navbar navbar-expand-md fixed-top text-dark bg-white" style="height: 70px;">
     <div class="container-fluid d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center">
-            <a class="navbar-brand" href="supervisorMain">TimeTeam Manager SUPERVISOR</a>
+            <a class="navbar-brand" href="supervisor/main">TimeTeam Manager SUPERVISOR</a>
         </div>
         <div class="d-flex align-items-center">
             <div class="d-flex justify-content-center" style="background-color: #6c757d; border-radius: 5px; width: 150px; height: 38px; margin-right: 10px;">
                 <p class="display-6" id="clock" style="margin-top: -7px; color: white;"></p>
             </div>
-            <a href="supervisorMessages">
+            <a href="supervisor/messages">
                 <button id="btnMessages" title="messages" class="btn btn-secondary" style="margin-right: 10px;" ><i class="fa-solid fa-envelope"></i></button>
             </a>
-            <a href="supervisorSettings">
+            <a href="supervisor/settings">
                 <button id="btnSettings" title="settings" class="btn btn-secondary" style="margin-right: 10px;" ><i class="fas fa-cog"></i></button>
             </a>
             <a href="logout">
@@ -176,7 +176,7 @@
         function loadTableData(recipientId) {
             $.ajax({
                 type: "GET",
-                url: "/supervisorLoadTableData",
+                url: "/supervisor/loadTableData",
                 data: { recipientId: recipientId },
                 success: function(data) {
                     updateTable(data);
@@ -237,7 +237,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "/supervisorSend",
+                url: "/supervisor/send",
                 data: JSON.stringify(jsonData),
                 processData: false,
                 contentType: "application/json",

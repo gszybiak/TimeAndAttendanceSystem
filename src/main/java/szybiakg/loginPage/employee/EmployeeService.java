@@ -31,7 +31,9 @@ public class EmployeeService {
                 .map(employeeDtoMapper::map);
     }
 
-    public List<EmployeeDto> findAllEmployeesExcludingGiven(Integer employeeId) {
+    public List<EmployeeDto> findAllEmployeesExcludingGiven() {
+        Optional<EmployeeDto> currentEmployee = findAuthenticatedEmployee();
+        Integer employeeId = currentEmployee.map(EmployeeDto::getId).orElse(null);
         List<Employee> employees = (List<Employee>) employeeRepository.findAll();
         return employees.stream()
                 .filter(employee -> !Objects.equals(employeeId, employee.getId()))

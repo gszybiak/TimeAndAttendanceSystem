@@ -1,0 +1,41 @@
+.background-image {
+    background-image: url('/images/office.jpg');
+    background-size: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+.margin-top-10 {
+    margin-top: 10px;
+}
+.margin-10 {
+    margin: 10px;
+}
+.table-450 {
+    max-height: 450px;
+    margin-bottom: 20px;
+}
+.background-gray {
+    background-color: #888;
+}
+.height-70 {
+    height: 70px;
+}
+.background-light-grey-clock{
+    background-color: #6c757d;
+    border-radius: 5px;
+    width: 150px;
+    height: 38px;
+    margin-right: 10px;
+}
+.white-clock{
+    margin-top: -7px;
+    color: white;
+}
+.background-md8{
+    background-color: rgba(200,200,200,0.9);
+    margin-top: 20px
+}
+
+
+

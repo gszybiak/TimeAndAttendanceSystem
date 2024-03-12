@@ -20,16 +20,16 @@
 <nav class="navbar navbar-expand-md fixed-top text-dark bg-white" style="height: 70px;">
     <div class="container-fluid d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center">
-            <a class="navbar-brand" href="supervisorMain">TimeTeam Manager SUPERVISOR</a>
+            <a class="navbar-brand" href="supervisor/main">TimeTeam Manager SUPERVISOR</a>
         </div>
         <div class="d-flex align-items-center">
             <div class="d-flex justify-content-center" style="background-color: #6c757d; border-radius: 5px; width: 150px; height: 38px; margin-right: 10px;">
                 <p class="display-6" id="clock" style="margin-top: -7px; color: white;"></p>
             </div>
-            <a href="supervisorMessages">
+            <a href="supervisor/messages">
                 <button id="btnMessages" title="messages" class="btn btn-secondary" style="margin-right: 10px;" ><i class="fa-solid fa-envelope"></i></button>
             </a>
-            <a href="supervisorSettings">
+            <a href="supervisor/settings">
                 <button id="btnSettings" title="settings" class="btn btn-secondary" style="margin-right: 10px;" ><i class="fas fa-cog"></i></button>
             </a>
             <a href="logout">
@@ -49,7 +49,7 @@
                     <button id="showPresence" type="button" class="btn btn-secondary active" style="margin-top: 10px; height: 60px;" onclick="showPresence()">Presence table</button>
                     <button id="showBreak" type="button" class="btn btn-secondary" style="margin-top: 10px; height: 60px;" onclick="showBreak()">Break table</button>
                 </div>
-                <a href="supervisorHolidays" style="width: 100%;">
+                <a href="supervisor/holidays" style="width: 100%;">
                      <button type="button" class="btn btn-secondary" style="margin-top: 10px; height: 60px; width: 100%;">Holiday requests</button>
                 </a>
                 <div class="dropdown" style="margin-top: 10px; width: 100%;">
@@ -57,9 +57,9 @@
                         Subordinates
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li><a class="dropdown-item" href="supervisorPresenceSubordinates">Presence</a></li>
-                        <li><a class="dropdown-item" href="supervisorBreakSubordinates">Breaks</a></li>
-                        <li><a class="dropdown-item" href="supervisorHolidaySubordinates">Holidays</a></li>
+                        <li><a class="dropdown-item" href="supervisor/presenceSubordinates">Presence</a></li>
+                        <li><a class="dropdown-item" href="supervisor/breakSubordinates">Breaks</a></li>
+                        <li><a class="dropdown-item" href="supervisor/holidaySubordinates">Holidays</a></li>
                     </ul>
                 </div>
             </div>

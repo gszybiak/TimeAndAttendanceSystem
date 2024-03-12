@@ -1,8 +1,11 @@
 package szybiakg.loginPage.readout;
 
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 import szybiakg.loginPage.employee.Employee;
 import szybiakg.loginPage.employee.EmployeeService;
+import szybiakg.loginPage.user.UserDto;
+import szybiakg.loginPage.user.UserService;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -17,26 +20,28 @@ import java.util.stream.Collectors;
 public class ReadoutService {
 
     private final EmployeeService employeeService;
+    private final UserService userService;
     private final ReadoutRepository readoutRepository;
     private final ReadoutTypeRepository readoutTypeRepository;
 
-    public ReadoutService(EmployeeService employeeService, ReadoutRepository readoutRepository, ReadoutTypeRepository readoutTypeRepository) {
+    public ReadoutService(EmployeeService employeeService, ReadoutRepository readoutRepository, ReadoutTypeRepository readoutTypeRepository, UserService userService) {
         this.employeeService = employeeService;
         this.readoutRepository = readoutRepository;
         this.readoutTypeRepository = readoutTypeRepository;
+        this.userService = userService;
     }
 
     public boolean addPresence(Integer userId){
         boolean isPresence = false;
         Employee employee = employeeService.findEmployeeByUserId(userId).get();
-        Optional<Readout> lastBreakReadoutOptional = getLastReadout(employee, PresenceType.B.name());
-        Optional<Readout> lastPresenceReadoutOptional = getLastReadout(employee, PresenceType.P.name());
+        Optional<Readout> lastBreakReadoutOptional = getLastReadout(employee, PresenceType.BREAK.name());
+        Optional<Readout> lastPresenceReadoutOptional = getLastReadout(employee, PresenceType.PRESENCE.name());
 
         if (lastPresenceReadoutOptional.isEmpty() || lastPresenceReadoutOptional.get().getEndTime() != null) {
             Readout newReadout = new Readout();
             newReadout.setEmployee(employee);
             newReadout.setStartTime(LocalDateTime.now());
-            newReadout.setReadoutType(readoutTypeRepository.findBySymbol(PresenceType.P.name()).get());
+            newReadout.setReadoutType(readoutTypeRepository.findBySymbol(PresenceType.PRESENCE.name()).get());
             readoutRepository.save(newReadout);
             isPresence = true;
         } else {
@@ -56,8 +61,8 @@ public class ReadoutService {
     public boolean addBreak(Integer userId){
         boolean isBreak = false;
         Employee employee = employeeService.findEmployeeByUserId(userId).get();
-        Optional<Readout> lastBreakReadoutOptional = getLastReadout(employee, PresenceType.B.name());
-        Optional<Readout> lastPresenceReadoutOptional = getLastReadout(employee, PresenceType.P.name());
+        Optional<Readout> lastBreakReadoutOptional = getLastReadout(employee, PresenceType.BREAK.name());
+        Optional<Readout> lastPresenceReadoutOptional = getLastReadout(employee, PresenceType.PRESENCE.name());
 
         if (lastBreakReadoutOptional.isEmpty() || lastBreakReadoutOptional.get().getEndTime() != null) {
             if(lastPresenceReadoutOptional.isEmpty() || lastPresenceReadoutOptional.get().getEndTime() != null)
@@ -65,7 +70,7 @@ public class ReadoutService {
             Readout newReadout = new Readout();
             newReadout.setEmployee(employee);
             newReadout.setStartTime(LocalDateTime.now());
-            newReadout.setReadoutType(readoutTypeRepository.findBySymbol(PresenceType.B.name()).get());
+            newReadout.setReadoutType(readoutTypeRepository.findBySymbol(PresenceType.BREAK.name()).get());
             readoutRepository.save(newReadout);
             isBreak = true;
         } else {
@@ -80,7 +85,7 @@ public class ReadoutService {
         Optional<Employee> employee = employeeService.findAuthenticatedEmployeeByEntity();
         if(employee.isEmpty())
             return false;
-        Optional<Readout> lastReadoutOptional = getLastReadout(employee.get(), PresenceType.B.name());
+        Optional<Readout> lastReadoutOptional = getLastReadout(employee.get(), PresenceType.BREAK.name());
         return lastReadoutOptional.filter(readout -> readout.getEndTime() == null).isPresent();
     }
 
@@ -88,7 +93,7 @@ public class ReadoutService {
         Optional<Employee> employee = employeeService.findAuthenticatedEmployeeByEntity();
         if(employee.isEmpty())
             return false;
-        Optional<Readout> lastReadoutOptional = getLastReadout(employee.get(), PresenceType.P.name());
+        Optional<Readout> lastReadoutOptional = getLastReadout(employee.get(), PresenceType.PRESENCE.name());
         return lastReadoutOptional.filter(readout -> readout.getEndTime() == null).isPresent();
     }
 
@@ -247,5 +252,19 @@ public class ReadoutService {
 
     private static String formatLocalDateTimeHoliday(LocalDateTime localDateTime) {
         return localDateTime != null ? localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "";
+    }
+
+    public void prepareMainModelData(Model model) {
+        Optional<UserDto> userDto = userService.findAuthenticatedUser();
+        model.addAttribute("break", getIsBreak(userDto.get().getId()) ? "Log end brake" : "Log start brake");
+        model.addAttribute("presence", getIsPresence(userDto.get().getId()) ? "Log end presence" : "Log start presence");
+
+        List<ReadoutDto> presenceList = loadReadoutList(PresenceType.PRESENCE.name(), null);
+        List<ReadoutDto> breakList = loadReadoutList(PresenceType.BREAK.name(), null);
+        model.addAttribute("presenceList", presenceList);
+        model.addAttribute("breakList", breakList);
+        model.addAttribute("workedHours", getSumTime(presenceList));
+        model.addAttribute("breakHours", getSumTime(breakList));
+        model.addAttribute("quanityLates", getQuantityLates(presenceList));
     }
 }

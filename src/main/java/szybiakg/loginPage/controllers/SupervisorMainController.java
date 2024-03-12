@@ -1,6 +1,5 @@
 package szybiakg.loginPage.controllers;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,8 +8,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.util.StringUtils;
 import szybiakg.loginPage.employee.EmployeeDto;
 import szybiakg.loginPage.employee.EmployeeService;
-import szybiakg.loginPage.generatorFile.ExcelGeneratorService;
-import szybiakg.loginPage.generatorFile.PdfGeneratorService;
 import szybiakg.loginPage.messages.MessageDto;
 import szybiakg.loginPage.messages.MessageForm;
 import szybiakg.loginPage.messages.MessageService;
@@ -18,12 +15,12 @@ import szybiakg.loginPage.readout.*;
 import szybiakg.loginPage.user.UserDto;
 import szybiakg.loginPage.user.UserService;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
+@RequestMapping("/supervisor")
 public class SupervisorMainController {
 
     private final UserService userService;
@@ -38,7 +35,7 @@ public class SupervisorMainController {
         this.messageService = messageService;
     }
 
-    @RequestMapping("/supervisorMain")
+    @RequestMapping("/main")
     String showSupervisorMain(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error) {
         if (!StringUtils.isEmpty(info))
             model.addAttribute("info", info);
@@ -49,8 +46,8 @@ public class SupervisorMainController {
         model.addAttribute("break", readoutService.getIsBreak(userDto.get().getId()) ? "Log end brake" : "Log start brake");
         model.addAttribute("presence", readoutService.getIsPresence(userDto.get().getId()) ? "Log end presence" : "Log start presence");
 
-        List<ReadoutDto> presenceList = readoutService.loadReadoutList(PresenceType.P.name(), null);
-        List<ReadoutDto> breakList = readoutService.loadReadoutList(PresenceType.B.name(), null);
+        List<ReadoutDto> presenceList = readoutService.loadReadoutList(PresenceType.PRESENCE.name(), null);
+        List<ReadoutDto> breakList = readoutService.loadReadoutList(PresenceType.BREAK.name(), null);
         model.addAttribute("presenceList", presenceList);
         model.addAttribute("breakList", breakList);
         model.addAttribute("workedHours", readoutService.getSumTime(presenceList));
@@ -59,7 +56,7 @@ public class SupervisorMainController {
         return "supervisor/supervisorMain";
     }
 
-    @PostMapping("/supervisorLogPresence")
+    @PostMapping("/logPresence")
     public String supervisorLogPresence(@RequestParam String nfcCode, RedirectAttributes redirectAttributes) {
         boolean isPresence = false;
         Optional<UserDto> user = userService.findAuthenticatedUser();
@@ -76,10 +73,10 @@ public class SupervisorMainController {
                 redirectAttributes.addFlashAttribute("error", ex.getMessage());
             }
         }
-        return "redirect:/supervisorMain";
+        return "redirect:/supervisor/main";
     }
 
-    @PostMapping("/supervisorLogBreak")
+    @PostMapping("/logBreak")
     public String supervisorLogBreak(@RequestParam String nfcCode, RedirectAttributes redirectAttributes) {
         boolean isBreak = false;
         Optional<UserDto> user = userService.findAuthenticatedUser();
@@ -96,9 +93,9 @@ public class SupervisorMainController {
                 redirectAttributes.addFlashAttribute("error", ex.getMessage());
             }
         }
-        return "redirect:/supervisorMain";
+        return "redirect:/supervisor/main";
     }
-    @RequestMapping("/supervisorSettings")
+    @RequestMapping("/settings")
     String supervisorShowSettings(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error) {
         EmployeeDto employee = employeeService.findAuthenticatedEmployee().get();
         UserDto user = userService.findAuthenticatedUser().get();
@@ -107,12 +104,11 @@ public class SupervisorMainController {
         return "supervisor/supervisorSettings";
     }
 
-    @RequestMapping("/supervisorMessages")
+    @RequestMapping("/messages")
     String supervisorShowMessages(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error, @RequestParam(required = false) Integer recipientId) {
         Optional<EmployeeDto> employee = employeeService.findAuthenticatedEmployee();
         List<MessageDto> messages = messageService.findMessagesByEmployeeId(employee.map(EmployeeDto::getId).orElse(null), recipientId);
-        List<EmployeeDto> recipients = employeeService.findAllEmployeesExcludingGiven(employee.map(EmployeeDto::getId).orElse(null));
-        model.addAttribute("recipients", recipients);
+        model.addAttribute("recipients", employeeService.findAllEmployeesExcludingGiven());
         model.addAttribute("messages", messages);
         MessageForm messageForm = new MessageForm();
         messageForm.setRecipientId(recipientId != null ? recipientId : (Integer) model.getAttribute("lastRecipientId"));
@@ -124,39 +120,39 @@ public class SupervisorMainController {
         return "supervisor/supervisorMessages";
     }
 
-    @RequestMapping("/supervisorPresenceSubordinates")
+    @RequestMapping("/presenceSubordinates")
     String supervisorPresenceSubordinates(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error, @RequestParam(required = false) Integer subordinateId) {
         List<EmployeeDto> subordinates = employeeService.findAllSupervisors();
         model.addAttribute("subordinates", subordinates);
-        List<ReadoutDto> presenceSubordinateList = readoutService.loadReadoutList(PresenceType.P.name(), subordinateId);
+        List<ReadoutDto> presenceSubordinateList = readoutService.loadReadoutList(PresenceType.PRESENCE.name(), subordinateId);
         model.addAttribute("presenceSubordinateList", presenceSubordinateList);
         model.addAttribute("subordinateId", subordinateId);
         return "supervisor/supervisorPresenceSubordinates";
     }
 
-    @RequestMapping("/supervisorBreakSubordinates")
+    @RequestMapping("/breakSubordinates")
     String supervisorBreakSubordinates(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error, @RequestParam(required = false) Integer subordinateId) {
         List<EmployeeDto> subordinates = employeeService.findAllSupervisors();
         model.addAttribute("subordinates", subordinates);
-        List<ReadoutDto> breakSubordinateList = readoutService.loadReadoutList(PresenceType.B.name(), subordinateId);
+        List<ReadoutDto> breakSubordinateList = readoutService.loadReadoutList(PresenceType.BREAK.name(), subordinateId);
         model.addAttribute("brakeSubordinateList", breakSubordinateList);
         model.addAttribute("subordinateId", subordinateId);
         return "supervisor/supervisorBreakSubordinates";
     }
 
-    @GetMapping("/supervisorLoadTablePresenceSubordinates")
+    @GetMapping("/loadTablePresenceSubordinates")
     @ResponseBody
     List<ReadoutDto> supervisorLoadTablePresenceSubordinates(@RequestParam Integer subordinateId) {
-        return readoutService.loadReadoutList(PresenceType.P.name(), subordinateId);
+        return readoutService.loadReadoutList(PresenceType.PRESENCE.name(), subordinateId);
     }
 
-    @GetMapping("/supervisorLoadTableBreakSubordinates")
+    @GetMapping("/loadTableBreakSubordinates")
     @ResponseBody
     List<ReadoutDto> supervisorLoadTableBreakSubordinates(@RequestParam Integer subordinateId) {
-        return readoutService.loadReadoutList(PresenceType.B.name(), subordinateId);
+        return readoutService.loadReadoutList(PresenceType.BREAK.name(), subordinateId);
     }
 
-    @RequestMapping("supervisorHolidaySubordinates")
+    @RequestMapping("holidaySubordinates")
     String supervisorHolidaySubordinates(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error, @RequestParam(required = false) Integer subordinateId) {
         if (!StringUtils.isEmpty(info))
             model.addAttribute("info", info);
@@ -170,20 +166,20 @@ public class SupervisorMainController {
         return "supervisor/supervisorHolidaySubordinates";
     }
 
-    @GetMapping("/supervisorLoadTableHolidaySubordinates")
+    @GetMapping("/loadTableHolidaySubordinates")
     @ResponseBody
     List<ReadoutDto> supervisorLoadTableHolidaySubordinates(@RequestParam Integer subordinateId) {
         return readoutService.loadHolidaysList(subordinateId);
     }
 
-    @GetMapping("/supervisorLoadTableData")
+    @GetMapping("/loadTableData")
     @ResponseBody
     List<MessageDto> supervisorLoadTableData(@RequestParam Integer recipientId) {
         Optional<EmployeeDto> employee = employeeService.findAuthenticatedEmployee();
         return messageService.findMessagesByEmployeeId(employee.map(EmployeeDto::getId).orElse(null), recipientId);
     }
 
-    @PostMapping("/supervisorSend")
+    @PostMapping("/send")
     @ResponseBody
     public ResponseEntity<Integer> supervisorSendMessage(@RequestBody MessageForm messageForm) {
         Integer recipientId = messageForm.getRecipientId();
@@ -192,7 +188,7 @@ public class SupervisorMainController {
         return ResponseEntity.ok(recipientId);
     }
 
-    @RequestMapping("supervisorHolidays")
+    @RequestMapping("holidays")
     String supervisorShowHolidays(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error) {
         if (!StringUtils.isEmpty(info))
             model.addAttribute("info", info);
@@ -208,7 +204,7 @@ public class SupervisorMainController {
         return "supervisor/supervisorHolidays";
     }
 
-    @PostMapping("/supervisorAddHoliday")
+    @PostMapping("/addHoliday")
     public String supervisorAddHoliday(@ModelAttribute HolidayForm holidayForm, RedirectAttributes redirectAttributes) {
         Integer holidayTypeId = holidayForm.getHolidayTypeId();
         boolean isUsePeriod = holidayForm.isUsePeriod();;
@@ -228,6 +224,6 @@ public class SupervisorMainController {
         } catch(Exception ex){
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
-        return "redirect:/supervisorHolidays";
+        return "redirect:/supervisor/holidays";
     }
 }

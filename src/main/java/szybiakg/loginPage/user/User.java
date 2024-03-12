@@ -1,9 +1,7 @@
 package szybiakg.loginPage.user;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +16,7 @@ public class User {
     private String username;
     private String password;
     private String nfcCode;
-    @Column(columnDefinition = "boolean default false")
+    @Column(columnDefinition = "default false")
     private boolean isValid;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

@@ -41,17 +41,7 @@ public class MainController {
         if (!StringUtils.isEmpty(error))
             model.addAttribute("error", error);
 
-        Optional<UserDto> userDto = userService.findAuthenticatedUser();
-        model.addAttribute("break", readoutService.getIsBreak(userDto.get().getId()) ? "Log end brake" : "Log start brake");
-        model.addAttribute("presence", readoutService.getIsPresence(userDto.get().getId()) ? "Log end presence" : "Log start presence");
-
-        List<ReadoutDto> presenceList = readoutService.loadReadoutList(PresenceType.P.name(), null);
-        List<ReadoutDto> breakList = readoutService.loadReadoutList(PresenceType.B.name(), null);
-        model.addAttribute("presenceList", presenceList);
-        model.addAttribute("breakList", breakList);
-        model.addAttribute("workedHours", readoutService.getSumTime(presenceList));
-        model.addAttribute("breakHours", readoutService.getSumTime(breakList));
-        model.addAttribute("quanityLates", readoutService.getQuantityLates(presenceList));
+        readoutService.prepareMainModelData(model);
         return "main";
     }
 
@@ -121,8 +111,7 @@ public class MainController {
     String showMessages(Model model, @RequestParam(required = false) String info, @RequestParam(required = false) String error, @RequestParam(required = false) Integer recipientId) {
         Optional<EmployeeDto> employee = employeeService.findAuthenticatedEmployee();
         List<MessageDto> messages = messageService.findMessagesByEmployeeId(employee.map(EmployeeDto::getId).orElse(null), recipientId);
-        List<EmployeeDto> recipients = employeeService.findAllEmployeesExcludingGiven(employee.map(EmployeeDto::getId).orElse(null));
-        model.addAttribute("recipients", recipients);
+        model.addAttribute("recipients", employeeService.findAllEmployeesExcludingGiven());
         model.addAttribute("messages", messages);
         MessageForm messageForm = new MessageForm();
         messageForm.setRecipientId(recipientId != null ? recipientId : (Integer) model.getAttribute("lastRecipientId"));

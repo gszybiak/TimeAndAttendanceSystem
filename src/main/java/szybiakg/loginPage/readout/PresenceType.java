@@ -4,12 +4,12 @@ import lombok.Getter;
 
 @Getter
 public enum PresenceType {
-    B("Break"),
-    P("Presence"),
+    BREAK("Break"),
+    PRESENCE("Presence"),
     PL("Paid leave"),
     SL("Sick leave"),
     UL("Unpaid leave"),
-    H("Holiday");
+    HOLIDAY("Holiday");
 
     private final String description;
 

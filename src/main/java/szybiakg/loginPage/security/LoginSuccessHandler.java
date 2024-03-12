@@ -20,10 +20,10 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         for (GrantedAuthority grantedAuthority : authorities) {
             switch (grantedAuthority.getAuthority()) {
                 case "ROLE_ADMIN":
-                    targetUrl = "/adminSettings";
+                    targetUrl = "/admin/Settings";
                     break;
                 case "ROLE_SUPERVISOR":
-                    targetUrl = "/supervisorMain";
+                    targetUrl = "/supervisor/main";
                     break;
                 default:
                     targetUrl = "/controllers";
